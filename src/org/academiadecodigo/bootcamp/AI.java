@@ -7,8 +7,8 @@ public class AI {
 
     public Characters.State pickAction (Player player, Enemy enemy) {
 
-        Figure playerFrame = player.getFrame();
-        Figure enemyFrame = enemy.getFrame();
+        Figure playerFrame = player.getFigure();
+        Figure enemyFrame = enemy.getFigure();
 
 
         //switch ()

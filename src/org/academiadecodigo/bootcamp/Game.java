@@ -4,7 +4,6 @@ import org.academiadecodigo.bootcamp.Characters.*;
 import org.academiadecodigo.bootcamp.kuusisto.tinysound.Music;
 import org.academiadecodigo.bootcamp.kuusisto.tinysound.Sound;
 import org.academiadecodigo.bootcamp.kuusisto.tinysound.TinySound;
-import org.academiadecodigo.simplegraphics.graphics.Color;
 import org.academiadecodigo.simplegraphics.graphics.Rectangle;
 import org.academiadecodigo.simplegraphics.keyboard.Keyboard;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEvent;
@@ -39,7 +38,7 @@ public class Game implements KeyboardHandler {
     private Picture gameOver;
     private Rectangle lifeBar;
     private int frameIndex = 0;
-    private Figure sprite;// = new Figure(CharacterType.PLAYER);
+    private Figure playerSprite;// = new Figure(CharacterType.PLAYER);
     private int gameCounter;
 
 
@@ -56,7 +55,7 @@ public class Game implements KeyboardHandler {
         background = gameImages.loadImages(false);
         background2 = gameImages.loadImages(true);
         player = new Player();
-        sprite= new Figure(CharacterType.PLAYER);
+        playerSprite = player.getFigure();
         TinySound.init();
         song = TinySound.loadMusic("music/menu.wav");
         sound=TinySound.loadSound("music/titlescreen.wav");
@@ -115,13 +114,12 @@ public class Game implements KeyboardHandler {
                     currentLevel = new Level();
 
                     //player stats
-                    sprite.load("characters/player/right/standing/0.png");
-                    sprite.draw();
+                    playerSprite.draw();
                     player.changeFacing(Characters.Facing.RIGHT);
-                    player.setStanding(sprite, gameCounter);
+                    player.setStanding(gameCounter);
 
 
-                    //sprite.animationInit(Characters.Facing.RIGHT, Characters.State.STANDING);
+                    //playerSprite.animationInit(Characters.Facing.RIGHT, Characters.State.STANDING);
 
 
                 }
@@ -137,7 +135,7 @@ public class Game implements KeyboardHandler {
 
                     }
 
-                    player.setStanding(sprite, gameCounter);
+                    player.setStanding(gameCounter);
                     gameCounter++;
 
 
@@ -165,11 +163,11 @@ public class Game implements KeyboardHandler {
                             enemies.attack(player);
                             sound=TinySound.loadSound("music/punch.wav");
                             sound.play();
-                            enemies.animate(enemies.getFrame(),gameCounter,AttackMove.ATTACK);
+                            enemies.animate(gameCounter,AttackMove.ATTACK);
                             break;
                         case WALKING:
                             //System.out.println("WALKING");
-                            enemies.move(gameCounter,enemies.getFrame());
+                            enemies.move(gameCounter);
                             break;
                     }
                     //player.getHp();
@@ -186,13 +184,13 @@ public class Game implements KeyboardHandler {
                         enemies.die();
                         //enemiesOnScreen = 0;
 
-                        if (gameCounter > 1000){
-                            enemies.getFrame().loadFrame(1);
-                        } else if (gameCounter > 500){
-                            enemies.getFrame().loadFrame(0);
+                        if (gameCounter > 500){
+                            enemies.getFigure().loadFrame(1);
+                        } else if (gameCounter > 100){
+                            enemies.getFigure().loadFrame(0);
                         }
 
-                        enemies.getFrame().delete();
+                        enemies.getFigure().delete();
                         distance++;
                         enemiesOnScreen = 0;
                     }
@@ -261,7 +259,7 @@ public class Game implements KeyboardHandler {
         song.unload();
         ai=null;
         enemies=null;
-        player.getFrame().delete();
+        player.getFigure().delete();
         player=null;
 
         init();
@@ -269,17 +267,18 @@ public class Game implements KeyboardHandler {
     }
 
     private void bossBattle() {
+
         song.stop();
-        sound=TinySound.loadSound("music/santalaugh.wav");
+        sound = TinySound.loadSound("music/santalaugh.wav");
         sound.play();
         song.unload();
         song = TinySound.loadMusic("music/boss.wav");
         song.play(true);
-        if (sprite.getMaxX() >= 400 && enemiesOnScreen == 0) {
+        if (playerSprite.getMaxX() >= 400 && enemiesOnScreen == 0) {
             //Create a new enemy
             Enemy enemy = EnemyFactory.createEnemy(true);
             enemies = enemy;
-            enemy.getFrame().draw();
+            enemies.getFigure().draw();
 
             enemiesOnScreen = 1;
         }
@@ -293,11 +292,11 @@ public class Game implements KeyboardHandler {
 
 
     private void battleArea() throws InterruptedException {
-        if (sprite.getMaxX() >= 400 && enemiesOnScreen == 0) {
+        if (playerSprite.getMaxX() >= 400 && enemiesOnScreen == 0) {
             //Create a new enemy
             Enemy enemy = EnemyFactory.createEnemy(false);
             enemies = enemy;
-            enemy.getFrame().draw();
+            enemies.getFigure().draw();
             enemiesOnScreen = 1;
         }
         if (enemiesOnScreen == 1) {
@@ -366,11 +365,11 @@ public class Game implements KeyboardHandler {
                 }
 
 
-                player.move(this.gameCounter, sprite);
+                player.move(this.gameCounter);
                 gameCounter++;
 
                 //Scroll background
-                if(enemiesOnScreen==0 && sprite.getMaxX()>=500){
+                if(enemiesOnScreen==0 && playerSprite.getMaxX()>=500){
                     if (background.getMaxX() > 500 || background2.getMaxX() > 500) {
                         //Method to roll the screen in loop, if it reached the limits
 
@@ -379,7 +378,7 @@ public class Game implements KeyboardHandler {
                             background2.translate(-10, 0);
 
                         } else {
-                            player.getFrame().translate(-20, 0);
+                            player.getFigure().translate(-20, 0);
                         }
                         //Thread.sleep(100);
                     }
@@ -396,7 +395,7 @@ public class Game implements KeyboardHandler {
                 }
 
 
-                player.move(this.gameCounter, sprite);
+                player.move(this.gameCounter);
                 gameCounter++;
 
                 //Call the method in player
@@ -406,7 +405,7 @@ public class Game implements KeyboardHandler {
                 if (gameCounter == 201) {
                     gameCounter = 0;
                 }
-                player.animate(sprite,gameCounter,AttackMove.PUNCH);
+                player.animate(gameCounter,AttackMove.PUNCH);
                 if(enemiesOnScreen==1){
                     if (player.attack(enemies)) {
                         sound=TinySound.loadSound("music/punch.wav");
@@ -425,7 +424,7 @@ public class Game implements KeyboardHandler {
                 if (gameCounter == 201) {
                     gameCounter = 0;
                 }
-                player.animate(sprite,gameCounter,AttackMove.KICK);
+                player.animate(gameCounter,AttackMove.KICK);
                 if(enemiesOnScreen==1){
                     if (player.attack(enemies)) {
                         int damage = (int) Math.round(Math.random() * 40) + 20;
@@ -447,18 +446,18 @@ public class Game implements KeyboardHandler {
 
         switch (keyboardEvent.getKey()) {
             case KeyboardEvent.KEY_RIGHT:
-                player.setStanding(sprite, gameCounter);
+                player.setStanding(gameCounter);
 
                 break;
             case KeyboardEvent.KEY_LEFT:
 
-                player.setStanding(sprite, gameCounter);
+                player.setStanding(gameCounter);
                 break;
             case KeyboardEvent.KEY_C:
-                player.setStanding(sprite, gameCounter);
+                player.setStanding(gameCounter);
                 break;
             case KeyboardEvent.KEY_X:
-                player.setStanding(sprite, gameCounter);
+                player.setStanding(gameCounter);
 
                 break;
 
@@ -470,7 +469,7 @@ public class Game implements KeyboardHandler {
     public void clear(){
         level=0;
         enemiesOnScreen=0;
-        enemies.getFrame().delete();
+        enemies.getFigure().delete();
 
 
     }

@@ -1,32 +1,39 @@
 package org.academiadecodigo.bootcamp.Characters;
 
-import org.academiadecodigo.bootcamp.Game;
-
 public class Player implements Characters {
     int hp = 1000;
     int walkspeed;
     boolean dead;
     State state;
     Facing facing;
-    Figure frame;// = new Figure(CharacterType.PLAYER);
+    Figure figure;// = new Figure(CharacterType.PLAYER);
+
+    //CONSTRUCTOR
+    public Player(){
+        this.figure = new Figure(CharacterType.PLAYER);
+    }
+
+
+    //METHODS
 
     @Override
-    public void move ( int gameCounter,Figure sprite) {
+    public void move ( int gameCounter)
+    {
         state = State.WALKING;
-        sprite.animationInit(facing, state);
-        sprite.animate(gameCounter);
-        this.frame=sprite;
-
+        figure.animationInit(facing, state);
+        figure.animate(gameCounter);
     }
 
     @Override
-    public boolean attack(Characters opponent) {
+    public boolean attack(Characters opponent)
+    {
         state = State.ATTACKING;
         return isColliding(opponent);
     }
 
     @Override
-    public void die() {
+    public void die()
+    {
         dead = true;
         state = State.DYING;
     }
@@ -47,7 +54,7 @@ public class Player implements Characters {
     }
 
     @Override
-    public void animate(Figure sprite, int gameCounter,AttackMove attackMove) {
+    public void animate(int gameCounter,AttackMove attackMove) {
         switch (state){
             case WALKING:
                 break;
@@ -57,25 +64,23 @@ public class Player implements Characters {
                 break;
             case ATTACKING:
                 //state = State.WALKING;
-                sprite.animationInit(facing, state,attackMove);
-                sprite.animate(gameCounter);
-                this.frame=sprite;
-
+                figure.animationInit(facing, state,attackMove);
+                figure.animate(gameCounter);
                 break;
         }
     }
 
     @Override
-    public void setStanding(Figure sprite,int gameCounter) {
+    public void setStanding(int gameCounter) {
         state = State.STANDING;
-        sprite.animationInit(facing, state);
-        sprite.animate(gameCounter);
+        figure.animationInit(facing, state);
+        figure.animate(gameCounter);
     }
 
     public boolean isColliding(Characters opponent) {
-            Figure opponentFrame = opponent.getFrame();
+            Figure opponentFrame = opponent.getFigure();
 
-            if (((frame.getX() <= opponentFrame.getMaxX() && frame.getX() >= opponentFrame.getX()) || (frame.getMaxX() <= opponentFrame.getMaxX() && frame.getMaxX() >= opponentFrame.getX()))) {
+            if (((figure.getX() <= opponentFrame.getMaxX() && figure.getX() >= opponentFrame.getX()) || (figure.getMaxX() <= opponentFrame.getMaxX() && figure.getMaxX() >= opponentFrame.getX()))) {
 
                 return true;
             }
@@ -84,8 +89,8 @@ public class Player implements Characters {
     }
 
     @Override
-    public Figure getFrame() {
-        return frame;
+    public Figure getFigure() {
+        return figure;
     }
 
     @Override
